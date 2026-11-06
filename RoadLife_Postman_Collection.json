@@ -1,0 +1,1494 @@
+{
+  "info": {
+    "_postman_id": "roadlife-backend-master-collection",
+    "name": "RoadLife Backend API",
+    "description": "Complete Postman Collection for RoadLife Node.js + Express + TypeScript + PostgreSQL Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3030",
+      "type": "string"
+    },
+    {
+      "key": "userToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "wsUrl",
+      "value": "ws://localhost:3030/location",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Database Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/db",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "db"]
+            }
+          }
+        },
+        {
+          "name": "Redis Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/redis",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "redis"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Auth",
+      "item": [
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@roadlife.com\",\n  \"purpose\": \"REGISTRATION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/send-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "send-otp"]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@roadlife.com\",\n  \"otp\": \"1234\",\n  \"purpose\": \"REGISTRATION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.tokens && jsonData.data.tokens.accessToken) {",
+                  "    pm.collectionVariables.set('userToken', jsonData.data.tokens.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@roadlife.com\",\n  \"password\": \"Driver@123\",\n  \"name\": \"Jane Driver\",\n  \"transport_mode\": \"DRIVER\",\n  \"phone\": \"+1234567890\",\n  \"otp\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.tokens && jsonData.data.tokens.accessToken) {",
+                  "    pm.collectionVariables.set('userToken', jsonData.data.tokens.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@roadlife.com\",\n  \"password\": \"Driver@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@roadlife.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@roadlife.com\",\n  \"otp\": \"1234\",\n  \"newPassword\": \"NewPassword@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Auth",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.tokens && jsonData.data.tokens.accessToken) {",
+                  "    pm.collectionVariables.set('adminToken', jsonData.data.tokens.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@roadlife.com\",\n  \"password\": \"Admin@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Admin Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Admin Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Driver\",\n  \"phone\": \"+1987654321\",\n  \"notification_enabled\": true,\n  \"location_enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Transport Mode",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transport_mode\": \"CYCLIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/transport-mode",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "transport-mode"]
+            }
+          }
+        },
+        {
+          "name": "Delete Account (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/account",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "account"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hazards",
+      "item": [
+        {
+          "name": "Get Hazard Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Nearby Hazards",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards/nearby?latitude=37.7749&longitude=-122.4194&radius=10&status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards", "nearby"],
+              "query": [
+                { "key": "latitude", "value": "37.7749" },
+                { "key": "longitude", "value": "-122.4194" },
+                { "key": "radius", "value": "10" },
+                { "key": "status", "value": "ACTIVE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Hazards (Paginated & Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards?page=1&limit=20&status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "ACTIVE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Hazard (User/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Flooded Underpass\",\n  \"description\": \"6 inches of water blocking lane\",\n  \"latitude\": 37.7749,\n  \"longitude\": -122.4194,\n  \"severity\": \"HIGH\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards"]
+            }
+          }
+        },
+        {
+          "name": "Get Hazard by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards", "1"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Hazard (Vote)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards/1/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards", "1", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Resolve Hazard (Vote)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards/1/resolve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards", "1", "resolve"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hazard Reports",
+      "item": [
+        {
+          "name": "Submit Hazard Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Fallen Power Line\",\n  \"description\": \"Downed wire across bike lane on Market St\",\n  \"latitude\": 37.7800,\n  \"longitude\": -122.4100,\n  \"address\": \"Market St near 4th\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazard-reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazard-reports"]
+            }
+          }
+        },
+        {
+          "name": "Get My Hazard Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazard-reports/my?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazard-reports", "my"]
+            }
+          }
+        },
+        {
+          "name": "Get Hazard Report Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazard-reports/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazard-reports", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Journeys",
+      "item": [
+        {
+          "name": "Start Journey",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Evening Ride\",\n  \"start_latitude\": 37.7749,\n  \"start_longitude\": -122.4194,\n  \"transport_mode\": \"CYCLIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/journeys/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "journeys", "start"]
+            }
+          }
+        },
+        {
+          "name": "Get Active Journey",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/journeys/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "journeys", "active"]
+            }
+          }
+        },
+        {
+          "name": "End Journey",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"end_latitude\": 37.7800,\n  \"end_longitude\": -122.4100,\n  \"distance_km\": 3.2,\n  \"status\": \"COMPLETED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/journeys/1/end",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "journeys", "1", "end"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Journey",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/journeys/1/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "journeys", "1", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Get Journey History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/journeys/history?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "journeys", "history"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Real-Time Tracking (Socket.IO /location)",
+      "description": "Real-time location streaming and driver proximity awareness engine running on Socket.IO namespace /location. In Postman, open New -> WebSocket / Socket.IO Request, set URL to {{wsUrl}}, configure Handshake Auth { token: \"{{userToken}}\" }, and enable [x] Ack.",
+      "item": [
+        {
+          "name": "Socket.IO Connection & Handshake Guide",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health/redis",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "redis"]
+            },
+            "description": "### How to Connect in Postman:\n1. Click **New** in top-left -> Select **WebSocket Request** -> Select **Socket.IO**.\n2. **URL**: `{{baseUrl}}/location` (or `ws://localhost:3030/location`).\n3. Under **Events / Auth (Handshake)**, add:\n```json\n{\n  \"token\": \"{{userToken}}\"\n}\n```\n4. Click **Connect**.\n5. You will receive `location:config` pace rules immediately."
+          }
+        },
+        {
+          "name": "Event: location:update (Telemetry Ping)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": 12.9716,\n  \"lng\": 77.5946,\n  \"speed\": 45.0,\n  \"heading\": 90.0,\n  \"accuracy\": 10.0,\n  \"journeyId\": 7,\n  \"clientTimestamp\": 1793014500000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/journeys/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "journeys", "active"]
+            },
+            "description": "### Socket.IO Event: `location:update`\nIn your Postman Socket.IO request:\n1. Event Name: `location:update`\n2. Check **[x] Ack** box to see server response.\n3. Send payload:\n```json\n{\n  \"lat\": 12.9716,\n  \"lng\": 77.5946,\n  \"speed\": 45.0,\n  \"heading\": 90.0,\n  \"accuracy\": 10.0,\n  \"journeyId\": 7,\n  \"clientTimestamp\": 1793014500000\n}\n```\n4. Server responds with acknowledgement `{ \"receivedAt\": 1793014500000, \"timestamp\": 1793014500000 }`."
+          }
+        },
+        {
+          "name": "Event: location:heartbeat (Stationary Ping)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientTimestamp\": 1793014500000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "### Socket.IO Event: `location:heartbeat`\nSent every 45s when stationary (speed <= 0.5 m/s) to keep session alive without sending full coordinates:\n```json\n{\n  \"clientTimestamp\": 1793014500000\n}\n```"
+          }
+        },
+        {
+          "name": "Event: location:mode (Switch Transport Mode)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"CYCLIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/transport-mode",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "transport-mode"]
+            },
+            "description": "### Socket.IO Event: `location:mode`\nSwitches user mode on the active socket stream (`DRIVER`, `CYCLIST`, `WALKER`):\n```json\n{\n  \"mode\": \"CYCLIST\"\n}\n```"
+          }
+        },
+        {
+          "name": "Event: hazards:area (Viewport Bounding-Box Query)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minLat\": 12.9500,\n  \"maxLat\": 12.9900,\n  \"minLng\": 77.5700,\n  \"maxLng\": 77.6200,\n  \"limit\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hazards/nearby?latitude=12.97&longitude=77.59&radius=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hazards", "nearby"]
+            },
+            "description": "### Socket.IO Event: `hazards:area`\nQueries cached hazards in the visible map rectangle:\n```json\n{\n  \"minLat\": 12.9500,\n  \"maxLat\": 12.9900,\n  \"minLng\": 77.5700,\n  \"maxLng\": 77.6200,\n  \"limit\": 50\n}\n```\nServer returns `hazards:area` response with `{ hazards: [...], count: 5, truncated: false }`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Locations (DEPRECATED HTTP)",
+      "description": "⚠️ Legacy HTTP location polling endpoints. Returns Deprecation and Sunset headers. Migrate to Socket.IO /location namespace above.",
+      "item": [
+        {
+          "name": "Start Location Sharing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 37.7749,\n  \"longitude\": -122.4194,\n  \"transport_mode\": \"CYCLIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/locations/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "locations", "start"]
+            }
+          }
+        },
+        {
+          "name": "Update Location Coordinates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 37.7760,\n  \"longitude\": -122.4180,\n  \"transport_mode\": \"CYCLIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/locations/update",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "locations", "update"]
+            }
+          }
+        },
+        {
+          "name": "Get Nearby Active Users (Cyclists/Walkers)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/locations/nearby?latitude=37.7749&longitude=-122.4194&radius=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "locations", "nearby"]
+            }
+          }
+        },
+        {
+          "name": "Driver Proximity Awareness Engine",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/locations/awareness?latitude=37.7749&longitude=-122.4194&radius=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "locations", "awareness"]
+            }
+          }
+        },
+        {
+          "name": "Stop Location Sharing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/locations/stop",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "locations", "stop"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/1/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "1", "read"]
+            }
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/read-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "read-all"]
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Hazards",
+      "item": [
+        {
+          "name": "Admin List Hazards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/hazards?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "hazards"]
+            }
+          }
+        },
+        {
+          "name": "Admin Create Hazard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Road Closed for Bridge Work\",\n  \"description\": \"Bridge closed 9pm to 5am\",\n  \"latitude\": 37.7749,\n  \"longitude\": -122.4194,\n  \"severity\": \"CRITICAL\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/hazards",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "hazards"]
+            }
+          }
+        },
+        {
+          "name": "Admin Update Hazard Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/hazards/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "hazards", "1", "status"]
+            }
+          }
+        },
+        {
+          "name": "Admin Delete Hazard",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/hazards/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "hazards", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Reports",
+      "item": [
+        {
+          "name": "List User Reports for Moderation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/hazard-reports?status=PENDING&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "hazard-reports"]
+            }
+          }
+        },
+        {
+          "name": "Approve Report",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"severity\": \"HIGH\",\n  \"title\": \"Verified Pothole\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/hazard-reports/1/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "hazard-reports", "1", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Reject Report",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejection_reason\": \"Duplicate report or insufficient details provided\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/hazard-reports/1/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "hazard-reports", "1", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dataset Import",
+      "item": [
+        {
+          "name": "Upload CSV Dataset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"sf_official_hazards.csv\",\n  \"csvContent\": \"title,description,latitude,longitude,severity,category\\nHighway Pothole,Large pothole,37.7760,-122.4150,HIGH,pothole\\nAccident on 101,Multi-car collision,37.7780,-122.4170,CRITICAL,accident\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/datasets/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "datasets", "upload"]
+            }
+          }
+        },
+        {
+          "name": "Preview Staged Dataset",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/datasets/1/preview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "datasets", "1", "preview"]
+            }
+          }
+        },
+        {
+          "name": "Execute Dataset Import",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/datasets/1/import",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "datasets", "1", "import"]
+            }
+          }
+        },
+        {
+          "name": "Dataset Import History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/datasets/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "datasets", "history"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "List Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update User Status (Suspend/Activate)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SUSPENDED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/users/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "users", "1", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Content",
+      "item": [
+        {
+          "name": "Get Content Page by Slug (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/content/faq",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "content", "faq"]
+            }
+          }
+        },
+        {
+          "name": "List Content Pages (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/content",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "content"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        {
+          "name": "Get Public Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Get All Settings (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "settings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Summary Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "dashboard", "summary"]
+            }
+          }
+        },
+        {
+          "name": "Get Hazard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard/hazards",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "dashboard", "hazards"]
+            }
+          }
+        },
+        {
+          "name": "Get User Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "dashboard", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get Journey Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/dashboard/journeys",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "dashboard", "journeys"]
+            }
+          }
+        },
+        {
+          "name": "Get Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/activity-logs?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "activity-logs"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
